@@ -1,274 +1,321 @@
--- Инжектируемый скрипт для ESP с GUI
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
+-- Сохрани этот код как .txt файл и загрузи на pastebin/raw.github
+-- Или используй напрямую через loadstring
 
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-
--- Настройки
-local guiEnabled = false
-local espEnabled = false
-local espFolder = Instance.new("Folder")
-espFolder.Name = "ESP_Folder"
-espFolder.Parent = CoreGui
-
--- Создание GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CheatMenu"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главный фрейм
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 350, 0, 250)
-mainFrame.Position = UDim2.new(0.5, -175, 0.5, -125)
-mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-mainFrame.BackgroundTransparency = 0.15
-mainFrame.BorderSizePixel = 3
-mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
-mainFrame.Visible = false
-mainFrame.Parent = screenGui
-
--- Внутренний фрейм для эффекта
-local innerFrame = Instance.new("Frame")
-innerFrame.Name = "InnerFrame"
-innerFrame.Size = UDim2.new(1, -10, 1, -10)
-innerFrame.Position = UDim2.new(0, 5, 0, 5)
-innerFrame.BackgroundTransparency = 1
-innerFrame.Parent = mainFrame
-
--- Заголовок
-local title = Instance.new("TextLabel")
-title.Name = "Title"
-title.Size = UDim2.new(1, 0, 0, 35)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-title.BackgroundTransparency = 0.2
-title.Text = "💀 CHEAT MENU 💀"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 18
-title.Font = Enum.Font.GothamBold
-title.Parent = innerFrame
-
--- Кнопка ESP
-local espButton = Instance.new("TextButton")
-espButton.Name = "ESPButton"
-espButton.Size = UDim2.new(0.85, 0, 0, 45)
-espButton.Position = UDim2.new(0.075, 0, 0.25, 0)
-espButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-espButton.BackgroundTransparency = 0.1
-espButton.BorderSizePixel = 2
-espButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
-espButton.Text = "❌ ESP: OFF"
-espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-espButton.TextSize = 16
-espButton.Font = Enum.Font.GothamSemibold
-espButton.Parent = innerFrame
-
--- Кнопка закрытия
-local closeButton = Instance.new("TextButton")
-closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 25, 0, 25)
-closeButton.Position = UDim2.new(1, -30, 0, 5)
-closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-closeButton.Text = "✕"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 18
-closeButton.Font = Enum.Font.GothamBold
-closeButton.Parent = innerFrame
-
--- Информация
-local infoLabel = Instance.new("TextLabel")
-infoLabel.Name = "InfoLabel"
-infoLabel.Size = UDim2.new(1, 0, 0, 20)
-infoLabel.Position = UDim2.new(0, 0, 1, -25)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "RightControl - Open/Close"
-infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-infoLabel.TextSize = 12
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.Parent = innerFrame
-
--- Добавляем GUI
-screenGui.Parent = CoreGui
-
--- Функции
-local function toggleGUI()
-    guiEnabled = not guiEnabled
-    mainFrame.Visible = guiEnabled
-end
-
-local function toggleESP()
-    espEnabled = not espEnabled
-    if espEnabled then
-        espButton.Text = "✅ ESP: ON"
-        espButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-    else
-        espButton.Text = "❌ ESP: OFF"
-        espButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-        for _, child in pairs(espFolder:GetChildren()) do
-            if child:IsA("BoxHandleAdornment") or child:IsA("BillboardGui") then
-                child:Destroy()
-            end
-        end
+local function LoadScript()
+    -- Defuse Division ESP by Anonymous
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
     end
-end
-
--- ESP функция
-local function updateESP()
-    if not espEnabled then return end
     
-    for _, player in pairs(Players:GetPlayers()) do
-        local localPlayer = Players.LocalPlayer
-        if not localPlayer then continue end
+    local Players = game:GetService("Players")
+    local UserInputService = game:GetService("UserInputService")
+    local RunService = game:GetService("RunService")
+    local CoreGui = game:GetService("CoreGui")
+    local Workspace = game:GetService("Workspace")
+    
+    -- Удаляем старый GUI если есть
+    local oldGui = CoreGui:FindFirstChild("DD_ESP_GUI")
+    if oldGui then
+        oldGui:Destroy()
+    end
+    
+    -- Настройки
+    local ESPEnabled = false
+    local MenuVisible = false
+    
+    -- Создаем папку для ESP
+    local ESPFolder = Instance.new("Folder")
+    ESPFolder.Name = "DD_ESP_Objects"
+    ESPFolder.Parent = CoreGui
+    
+    -- Создаем GUI
+    local ScreenGUI = Instance.new("ScreenGui")
+    ScreenGUI.Name = "DD_ESP_GUI"
+    ScreenGUI.ResetOnSpawn = false
+    ScreenGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    -- Основное меню
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 320, 0, 220)
+    MainFrame.Position = UDim2.new(0.5, -160, 0.5, -110)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    MainFrame.BackgroundTransparency = 0.15
+    MainFrame.BorderSizePixel = 2
+    MainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
+    MainFrame.Visible = false
+    
+    -- Скругление углов
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = MainFrame
+    
+    -- Заголовок
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.Position = UDim2.new(0, 0, 0, 0)
+    Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Title.BackgroundTransparency = 0.3
+    Title.Text = "🔫 DEFUSE DIVISION ESP"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 18
+    Title.Font = Enum.Font.GothamBold
+    Title.Parent = MainFrame
+    
+    -- Кнопка ESP
+    local ESPButton = Instance.new("TextButton")
+    ESPButton.Name = "ESPButton"
+    ESPButton.Size = UDim2.new(0.85, 0, 0, 45)
+    ESPButton.Position = UDim2.new(0.075, 0, 0.25, 0)
+    ESPButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    ESPButton.BackgroundTransparency = 0.1
+    ESPButton.BorderSizePixel = 1
+    ESPButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
+    ESPButton.Text = "🎯 ESP: OFF"
+    ESPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ESPButton.TextSize = 16
+    ESPButton.Font = Enum.Font.GothamSemibold
+    ESPButton.Parent = MainFrame
+    
+    -- Кнопка закрытия
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Size = UDim2.new(0, 30, 0, 30)
+    CloseButton.Position = UDim2.new(1, -35, 0, 5)
+    CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    CloseButton.Text = "X"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.TextSize = 18
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.Parent = MainFrame
+    
+    -- Информация
+    local InfoLabel = Instance.new("TextLabel")
+    InfoLabel.Name = "InfoLabel"
+    InfoLabel.Size = UDim2.new(1, 0, 0, 25)
+    InfoLabel.Position = UDim2.new(0, 0, 1, -30)
+    InfoLabel.BackgroundTransparency = 1
+    InfoLabel.Text = "RightControl - Open/Close Menu"
+    InfoLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    InfoLabel.TextSize = 12
+    InfoLabel.Font = Enum.Font.Gotham
+    InfoLabel.Parent = MainFrame
+    
+    MainFrame.Parent = ScreenGUI
+    ScreenGUI.Parent = CoreGui
+    
+    -- Функция переключения ESP
+    local function ToggleESP()
+        ESPEnabled = not ESPEnabled
         
-        if player ~= localPlayer and player.Character then
-            local character = player.Character
-            local humanoid = character:FindFirstChild("Humanoid")
-            local head = character:FindFirstChild("Head")
+        if ESPEnabled then
+            ESPButton.Text = "🎯 ESP: ON 🔴"
+            ESPButton.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+        else
+            ESPButton.Text = "🎯 ESP: OFF"
+            ESPButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
             
-            if humanoid and head and humanoid.Health > 0 then
-                -- Бокс ESP
-                local box = espFolder:FindFirstChild(player.Name .. "_Box")
-                if not box then
-                    box = Instance.new("BoxHandleAdornment")
-                    box.Name = player.Name .. "_Box"
-                    box.Adornee = character
-                    box.AlwaysOnTop = true
-                    box.ZIndex = 10
-                    box.Size = character:GetExtentsSize() * 1.05
-                    box.Color3 = Color3.fromRGB(255, 0, 0)
-                    box.Transparency = 0.7
-                    box.Parent = espFolder
-                else
-                    box.Adornee = character
-                end
-                
-                -- Текст с информацией
-                local textGui = espFolder:FindFirstChild(player.Name .. "_Text")
-                if not textGui then
-                    textGui = Instance.new("BillboardGui")
-                    textGui.Name = player.Name .. "_Text"
-                    textGui.Adornee = head
-                    textGui.Size = UDim2.new(0, 200, 0, 100)
-                    textGui.AlwaysOnTop = true
-                    textGui.MaxDistance = 1000
-                    textGui.ExtentsOffset = Vector3.new(0, 3, 0)
-                    
-                    local textLabel = Instance.new("TextLabel")
-                    textLabel.Size = UDim2.new(1, 0, 0, 50)
-                    textLabel.BackgroundTransparency = 1
-                    textLabel.TextStrokeTransparency = 0.5
-                    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-                    textLabel.Font = Enum.Font.GothamBold
-                    textLabel.TextSize = 14
-                    textLabel.Parent = textGui
-                    
-                    textGui.Parent = espFolder
-                end
-                
-                -- Обновляем текст
-                local distance = (localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")) 
-                    and (head.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude 
-                    or 0
-                
-                local textLabel = textGui:FindFirstChildOfClass("TextLabel")
-                if textLabel then
-                    textLabel.Text = string.format("[%s]\nDist: %d\nHP: %d", 
-                        player.Name, 
-                        math.floor(distance), 
-                        math.floor(humanoid.Health)
-                    )
-                    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-                end
-            else
-                -- Удаляем ESP если игрок мертв
-                local box = espFolder:FindFirstChild(player.Name .. "_Box")
-                if box then box:Destroy() end
-                
-                local textGui = espFolder:FindFirstChild(player.Name .. "_Text")
-                if textGui then textGui:Destroy() end
+            -- Очищаем ESP
+            for _, obj in pairs(ESPFolder:GetChildren()) do
+                obj:Destroy()
             end
         end
     end
-end
-
--- Обработчики событий
-espButton.MouseButton1Click:Connect(toggleESP)
-closeButton.MouseButton1Click:Connect(function()
-    toggleGUI()
-end)
-
--- Горячие клавиши
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.RightControl then
-            toggleGUI()
-        end
-    end
-end)
-
--- Перетаскивание GUI
-local dragging = false
-local dragInput, dragStart, startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
+    
+    -- Функция создания ESP для игрока
+    local function CreateESP(Player)
+        if not Player.Character then return nil end
         
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
+        local Character = Player.Character
+        local Humanoid = Character:FindFirstChild("Humanoid")
+        local Head = Character:FindFirstChild("Head")
+        local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+        
+        if not Humanoid or not Head or not HumanoidRootPart then return nil end
+        
+        -- Красный прямоугольник
+        local Box = Instance.new("BoxHandleAdornment")
+        Box.Name = Player.Name .. "_Box"
+        Box.Adornee = Character
+        Box.AlwaysOnTop = true
+        Box.ZIndex = 10
+        Box.Size = Character:GetExtentsSize() * 1.05
+        Box.Color3 = Color3.fromRGB(255, 0, 0)
+        Box.Transparency = 0.6
+        Box.Visible = ESPEnabled
+        Box.Parent = ESPFolder
+        
+        -- Текст с информацией
+        local Billboard = Instance.new("BillboardGui")
+        Billboard.Name = Player.Name .. "_Info"
+        Billboard.Size = UDim2.new(0, 200, 0, 60)
+        Billboard.Adornee = Head
+        Billboard.AlwaysOnTop = true
+        Billboard.MaxDistance = 1000
+        Billboard.ExtentsOffset = Vector3.new(0, 3.5, 0)
+        Billboard.StudsOffset = Vector3.new(0, 3, 0)
+        
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Size = UDim2.new(1, 0, 1, 0)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.Text = Player.Name
+        TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextLabel.TextSize = 14
+        TextLabel.Font = Enum.Font.GothamBold
+        TextLabel.TextStrokeTransparency = 0.5
+        TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        TextLabel.Parent = Billboard
+        
+        Billboard.Parent = ESPFolder
+        
+        return {
+            Box = Box,
+            Billboard = Billboard,
+            Player = Player
+        }
+    end
+    
+    -- Функция обновления ESP
+    local function UpdateESP()
+        if not ESPEnabled then return end
+        
+        local LocalPlayer = Players.LocalPlayer
+        if not LocalPlayer or not LocalPlayer.Character then return end
+        
+        local LocalRoot = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not LocalRoot then return end
+        
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                local Character = Player.Character
+                local Humanoid = Character:FindFirstChild("Humanoid")
+                local Head = Character:FindFirstChild("Head")
+                local Root = Character:FindFirstChild("HumanoidRootPart")
+                
+                if Humanoid and Head and Root and Humanoid.Health > 0 then
+                    local ESP = ESPFolder:FindFirstChild(Player.Name .. "_Box")
+                    
+                    if not ESP then
+                        CreateESP(Player)
+                    else
+                        -- Обновляем позицию
+                        ESP.Adornee = Character
+                        
+                        -- Обновляем текст
+                        local Info = ESPFolder:FindFirstChild(Player.Name .. "_Info")
+                        if Info then
+                            local TextLabel = Info:FindFirstChild("TextLabel")
+                            if TextLabel then
+                                local Distance = (Root.Position - LocalRoot.Position).Magnitude
+                                TextLabel.Text = string.format("%s\nHP: %d | %dm", 
+                                    Player.Name,
+                                    math.floor(Humanoid.Health),
+                                    math.floor(Distance)
+                                )
+                            end
+                        end
+                    end
+                else
+                    -- Удаляем ESP если игрок мертв
+                    local Box = ESPFolder:FindFirstChild(Player.Name .. "_Box")
+                    if Box then Box:Destroy() end
+                    
+                    local Info = ESPFolder:FindFirstChild(Player.Name .. "_Info")
+                    if Info then Info:Destroy() end
+                end
             end
-        end)
+        end
     end
-end)
-
-mainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        update(input)
-    end
-end)
-
--- Основной цикл ESP
-RunService.RenderStepped:Connect(function()
-    updateESP()
-end)
-
--- Автоочистка ESP при выходе игроков
-Players.PlayerRemoving:Connect(function(player)
-    local box = espFolder:FindFirstChild(player.Name .. "_Box")
-    if box then box:Destroy() end
     
-    local textGui = espFolder:FindFirstChild(player.Name .. "_Text")
-    if textGui then textGui:Destroy() end
-end)
-
--- Уведомление
-task.spawn(function()
-    print("✅ Инжект успешен!")
-    print("📌 RightControl - открыть/закрыть меню")
-    print("🎯 ESP - показывает врагов с инфой")
+    -- Обработчики событий
+    ESPButton.MouseButton1Click:Connect(ToggleESP)
     
-    if setclipboard then
-        setclipboard("Инжект успешен! RightControl - меню")
+    CloseButton.MouseButton1Click:Connect(function()
+        MenuVisible = false
+        MainFrame.Visible = false
+    end)
+    
+    -- Управление GUI
+    UserInputService.InputBegan:Connect(function(Input, Processed)
+        if not Processed then
+            if Input.KeyCode == Enum.KeyCode.RightControl then
+                MenuVisible = not MenuVisible
+                MainFrame.Visible = MenuVisible
+            end
+        end
+    end)
+    
+    -- Перетаскивание GUI
+    local Dragging, DragInput, DragStart, StartPos
+    
+    local function Update(Input)
+        local Delta = Input.Position - DragStart
+        MainFrame.Position = UDim2.new(
+            StartPos.X.Scale, 
+            StartPos.X.Offset + Delta.X,
+            StartPos.Y.Scale, 
+            StartPos.Y.Offset + Delta.Y
+        )
     end
-end)
+    
+    Title.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Dragging = true
+            DragStart = Input.Position
+            StartPos = MainFrame.Position
+            
+            Input.Changed:Connect(function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
+    
+    Title.InputChanged:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement then
+            DragInput = Input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(Input)
+        if Dragging and Input == DragInput then
+            Update(Input)
+        end
+    end)
+    
+    -- Основной цикл
+    local ESPLoop
+    ESPLoop = RunService.RenderStepped:Connect(function()
+        UpdateESP()
+    end)
+    
+    -- Очистка при выходе игроков
+    Players.PlayerRemoving:Connect(function(Player)
+        local Box = ESPFolder:FindFirstChild(Player.Name .. "_Box")
+        if Box then Box:Destroy() end
+        
+        local Info = ESPFolder:FindFirstChild(Player.Name .. "_Info")
+        if Info then Info:Destroy() end
+    end)
+    
+    -- Уведомление
+    warn("🎮 Defuse Division ESP loaded!")
+    warn("📌 Press RightControl to open menu")
+    warn("🎯 Click ESP button to enable/disable")
+    
+    -- Возвращаем функцию для отключения
+    return function()
+        ESPLoop:Disconnect()
+        ScreenGUI:Destroy()
+        ESPFolder:Destroy()
+        warn("🔚 ESP script unloaded")
+    end
+end
+
+-- Запуск скрипта
+success, unloadFunc = pcall(LoadScript)
+if not success then
+    warn("❌ Error loading script:", success)
+end
